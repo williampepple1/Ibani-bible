@@ -5,6 +5,7 @@ import { getAllChapterParams, getChapter, getCategories } from "@/lib/bible-data
 import VerseDisplay from "@/components/VerseDisplay";
 import ChapterNav from "@/components/ChapterNav";
 import BreadcrumbDropdown from "@/components/BreadcrumbDropdown";
+import AudioPlayer from "@/components/AudioPlayer";
 
 interface ChapterPageProps {
   params: Promise<{ book: string; chapter: string }>;
@@ -63,6 +64,8 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
       </div>
 
       <section className="section">
+        <AudioPlayer bookSlug={bookSlug} chapterNum={chapterNum} />
+
         <VerseDisplay
           verses={data.verses}
           bookName={data.book.name}
