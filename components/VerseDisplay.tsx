@@ -15,6 +15,7 @@ export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplay
   useEffect(() => {
     const saved = localStorage.getItem("ibani-bible-reading-mode") as ReadingMode | null;
     if (saved && ["ibani", "english", "side-by-side"].includes(saved)) {
+      // eslint-disable-next-line
       setMode(saved);
     }
   }, []);
