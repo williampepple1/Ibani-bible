@@ -15,8 +15,6 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
-      setQuery("");
-      setResults([]);
     }
   }, [isOpen]);
 
@@ -62,7 +60,7 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
         </div>
         <div style={{ overflowY: "auto", padding: "16px", flex: 1 }}>
           {query.length > 2 && results.length === 0 && (
-            <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "32px 0" }}>No results found for "{query}"</div>
+            <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "32px 0" }}>No results found for &quot;{query}&quot;</div>
           )}
           {query.length <= 2 && (
             <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "32px 0" }}>Type at least 3 characters to search</div>
