@@ -11,6 +11,26 @@ interface VerseDisplayProps {
 
 export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplayProps) {
   const [mode, setMode] = useState<ReadingMode>("side-by-side");
+  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+
+  const handleShare = async (v: Verse) => {
+    const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}\n\nRead more at https://bible.ibani.online`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${bookName} ${chapter}:${v.verse}`,
+          text: text,
+        });
+      } catch (err) {
+        console.log("Error sharing", err);
+      }
+    } else {
+      navigator.clipboard.writeText(text);
+      alert("Verse copied to clipboard!");
+    }
+    setSelectedVerse(null);
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem("ibani-bible-reading-mode") as ReadingMode | null;
@@ -73,7 +93,13 @@ export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplay
       {mode === "side-by-side" ? (
         <div className={`chapter-content chapter-content--wide`}>
           {verses.map((v) => (
-            <div key={v.verse} className="verse-parallel" id={`verse-${v.verse}`}>
+            <div 
+              key={v.verse} 
+              className={`verse-parallel ${selectedVerse === v.verse ? 'selected' : ''}`} 
+              id={`verse-${v.verse}`}
+              onClick={() => setSelectedVerse(selectedVerse === v.verse ? null : v.verse)}
+              style={{ cursor: "pointer", position: "relative", backgroundColor: selectedVerse === v.verse ? "var(--accent-gold-dim)" : "transparent", padding: selectedVerse === v.verse ? "16px" : "16px 0", borderRadius: selectedVerse === v.verse ? "8px" : "0" }}
+            >
               <div className="verse-parallel__col">
                 <div className="verse-parallel__label">Ibani</div>
                 <sup className="verse__number">{v.verse}</sup>
@@ -84,6 +110,13 @@ export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplay
                 <sup className="verse__number">{v.verse}</sup>
                 <span>{v.englishText}</span>
               </div>
+              {selectedVerse === v.verse && (
+                <div style={{ position: "absolute", top: "8px", right: "8px" }}>
+                  <button onClick={(e) => { e.stopPropagation(); handleShare(v); }} style={{ background: "var(--accent-gold)", color: "#fff", border: "none", padding: "4px 12px", borderRadius: "16px", fontSize: "0.8rem", cursor: "pointer", fontWeight: 600, boxShadow: "var(--shadow-sm)" }}>
+                    Share / Copy
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -91,11 +124,22 @@ export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplay
         <article className="chapter-content">
           <div className="verses-block">
             {verses.map((v) => (
-              <span key={v.verse} className="verse" id={`verse-${v.verse}`}>
+              <span 
+                key={v.verse} 
+                className="verse" 
+                id={`verse-${v.verse}`}
+                onClick={() => setSelectedVerse(selectedVerse === v.verse ? null : v.verse)}
+                style={{ cursor: "pointer", backgroundColor: selectedVerse === v.verse ? "var(--accent-gold-dim)" : "transparent", position: "relative" }}
+              >
                 <sup className="verse__number">{v.verse}</sup>
                 <span className="verse__text">
                   {mode === "ibani" ? v.ibaniText : v.englishText}
                 </span>
+                {selectedVerse === v.verse && (
+                  <button onClick={(e) => { e.stopPropagation(); handleShare(v); }} style={{ background: "var(--accent-gold)", color: "#fff", border: "none", padding: "2px 8px", borderRadius: "12px", fontSize: "0.7rem", cursor: "pointer", fontWeight: 600, marginLeft: "8px", verticalAlign: "middle" }}>
+                    Share
+                  </button>
+                )}
               </span>
             ))}
           </div>
