@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { BookMeta } from "@/lib/types";
 import { useAppStore, FontSize } from "@/lib/store";
+import SearchModal from "./SearchModal";
 
 interface HeaderProps {
   categories: { category: string; books: BookMeta[] }[];
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 export default function Header({ categories, currentBookSlug }: HeaderProps) {
   const [theme, setTheme] = useState<"dark" | "light">("light");
+  const [searchOpen, setSearchOpen] = useState(false);
   const { fontSize, setFontSize } = useAppStore();
 
   useEffect(() => {
@@ -103,6 +105,14 @@ export default function Header({ categories, currentBookSlug }: HeaderProps) {
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <button
               className="theme-toggle"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search"
+              title="Search Bible"
+            >
+              🔍
+            </button>
+            <button
+              className="theme-toggle"
               onClick={toggleFontSize}
               aria-label="Toggle text size"
               title="Change Text Size"
@@ -121,6 +131,7 @@ export default function Header({ categories, currentBookSlug }: HeaderProps) {
           </div>
         </nav>
       </div>
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }

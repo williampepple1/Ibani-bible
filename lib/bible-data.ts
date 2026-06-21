@@ -185,3 +185,41 @@ export function getCategories(): { category: string; books: BookMeta[] }[] {
     books,
   }));
 }
+
+export interface SearchResult {
+  bookSlug: string;
+  bookName: string;
+  chapter: number;
+  verse: number;
+  ibaniText: string;
+  englishText: string;
+}
+
+export function searchVerses(query: string): SearchResult[] {
+  if (!query || query.trim() === "") return [];
+  const lowerQuery = query.toLowerCase();
+  const { books, chapters } = parseData();
+  const results: SearchResult[] = [];
+  
+  for (const book of books) {
+    const bookChapters = chapters[book.code];
+    if (!bookChapters) continue;
+    
+    for (const [chStr, verses] of Object.entries(bookChapters)) {
+      const chNum = parseInt(chStr, 10);
+      for (const v of verses) {
+        if (v.ibaniText.toLowerCase().includes(lowerQuery) || v.englishText.toLowerCase().includes(lowerQuery)) {
+          results.push({
+            bookSlug: book.slug,
+            bookName: book.name,
+            chapter: chNum,
+            verse: v.verse,
+            ibaniText: v.ibaniText,
+            englishText: v.englishText,
+          });
+        }
+      }
+    }
+  }
+  return results;
+}
