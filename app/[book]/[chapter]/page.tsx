@@ -6,6 +6,7 @@ import VerseDisplay from "@/components/VerseDisplay";
 import ChapterNav from "@/components/ChapterNav";
 import BreadcrumbDropdown from "@/components/BreadcrumbDropdown";
 import AudioPlayer from "@/components/AudioPlayer";
+import ChapterTracker from "@/components/ChapterTracker";
 
 interface ChapterPageProps {
   params: Promise<{ book: string; chapter: string }>;
@@ -49,6 +50,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
 
   return (
     <>
+      <ChapterTracker bookSlug={bookSlug} chapter={chapterNum} />
       <div className="page-header">
         <div className="page-header__inner">
           <nav className="breadcrumb" aria-label="Breadcrumb">
