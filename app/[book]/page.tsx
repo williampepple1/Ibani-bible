@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
-import { getAllBookSlugs, getBookBySlug } from "@/lib/bible-data";
+import { getAllBookSlugs, getBookBySlug, getCategories } from "@/lib/bible-data";
 import ChapterGrid from "@/components/ChapterGrid";
+import BreadcrumbDropdown from "@/components/BreadcrumbDropdown";
 
 interface BookPageProps {
   params: Promise<{ book: string }>;
@@ -34,6 +35,7 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
 export default async function BookPage({ params }: BookPageProps) {
   const { book: bookSlug } = await params;
   const book = getBookBySlug(bookSlug);
+  const categories = getCategories();
 
   if (!book) {
     notFound();
@@ -44,9 +46,7 @@ export default async function BookPage({ params }: BookPageProps) {
       <div className="page-header">
         <div className="page-header__inner">
           <nav className="breadcrumb" aria-label="Breadcrumb">
-            <Link href="/" className="breadcrumb__link">
-              Home
-            </Link>
+            <BreadcrumbDropdown categories={categories} />
             <span className="breadcrumb__sep">›</span>
             <span className="breadcrumb__current">{book.name}</span>
           </nav>

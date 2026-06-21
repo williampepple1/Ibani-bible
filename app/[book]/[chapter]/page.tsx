@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
-import { getAllChapterParams, getChapter } from "@/lib/bible-data";
+import { getAllChapterParams, getChapter, getCategories } from "@/lib/bible-data";
 import VerseDisplay from "@/components/VerseDisplay";
 import ChapterNav from "@/components/ChapterNav";
+import BreadcrumbDropdown from "@/components/BreadcrumbDropdown";
 
 interface ChapterPageProps {
   params: Promise<{ book: string; chapter: string }>;
@@ -39,6 +40,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
   const { book: bookSlug, chapter: chapterStr } = await params;
   const chapterNum = parseInt(chapterStr, 10);
   const data = getChapter(bookSlug, chapterNum);
+  const categories = getCategories();
 
   if (!data) {
     notFound();
@@ -49,9 +51,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
       <div className="page-header">
         <div className="page-header__inner">
           <nav className="breadcrumb" aria-label="Breadcrumb">
-            <Link href="/" className="breadcrumb__link">
-              Home
-            </Link>
+            <BreadcrumbDropdown categories={categories} />
             <span className="breadcrumb__sep">›</span>
             <Link href={`/${data.book.slug}`} className="breadcrumb__link">
               {data.book.name}
