@@ -43,6 +43,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://bible.ibani.online",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ibani Bible",
+  },
 };
 
 export default function RootLayout({
