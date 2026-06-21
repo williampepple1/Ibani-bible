@@ -19,7 +19,7 @@ export default function Header({ categories, currentBookSlug }: HeaderProps) {
   useEffect(() => {
     const saved = localStorage.getItem("ibani-bible-theme") as "dark" | "light" | null;
     if (saved) {
-      setTheme(saved);
+      setTimeout(() => setTheme(saved), 0);
     }
   }, []);
   const [menuOpen, setMenuOpen] = useState(false);
