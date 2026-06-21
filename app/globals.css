@@ -61,12 +61,12 @@
 
 /* ─── Light Theme ─── */
 [data-theme="light"] {
-  --bg-primary: #faf8f5;
-  --bg-secondary: #f2efe9;
-  --bg-card: #ffffff;
-  --bg-card-hover: #fdf9f3;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-glass-hover: rgba(255, 255, 255, 0.95);
+  --bg-primary: #f0ece3;
+  --bg-secondary: #e6e1d6;
+  --bg-card: #f8f6f0;
+  --bg-card-hover: #f0eee5;
+  --bg-glass: rgba(248, 246, 240, 0.85);
+  --bg-glass-hover: rgba(248, 246, 240, 0.95);
 
   --text-primary: #1a1a2e;
   --text-secondary: #4a4a68;
@@ -85,8 +85,8 @@
   --border-card: rgba(0, 0, 0, 0.08);
   --border-accent: rgba(184, 137, 46, 0.2);
 
-  --gradient-hero: linear-gradient(135deg, #faf8f5 0%, #f5f0e6 50%, #faf8f5 100%);
-  --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(250, 248, 245, 0.98));
+  --gradient-hero: linear-gradient(135deg, #f0ece3 0%, #e6e1d6 50%, #f0ece3 100%);
+  --gradient-card: linear-gradient(145deg, rgba(248, 246, 240, 0.95), rgba(240, 238, 229, 0.98));
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
