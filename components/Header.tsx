@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { BookMeta } from "@/lib/types";
+import { useAppStore, FontSize } from "@/lib/store";
 
 interface HeaderProps {
   categories: { category: string; books: BookMeta[] }[];
@@ -11,11 +12,11 @@ interface HeaderProps {
 
 export default function Header({ categories, currentBookSlug }: HeaderProps) {
   const [theme, setTheme] = useState<"dark" | "light">("light");
+  const { fontSize, setFontSize } = useAppStore();
 
   useEffect(() => {
     const saved = localStorage.getItem("ibani-bible-theme") as "dark" | "light" | null;
     if (saved) {
-      // eslint-disable-next-line
       setTheme(saved);
     }
   }, []);
@@ -26,6 +27,11 @@ export default function Header({ categories, currentBookSlug }: HeaderProps) {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
+
+  // Sync the data-text-size attribute to the DOM whenever fontSize changes
+  useEffect(() => {
+    document.documentElement.setAttribute("data-text-size", fontSize);
+  }, [fontSize]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -42,6 +48,13 @@ export default function Header({ categories, currentBookSlug }: HeaderProps) {
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("ibani-bible-theme", next);
+  }
+
+  function toggleFontSize() {
+    const sizes: FontSize[] = ["small", "normal", "large", "xlarge"];
+    const currentIndex = sizes.indexOf(fontSize);
+    const nextIndex = (currentIndex + 1) % sizes.length;
+    setFontSize(sizes[nextIndex]);
   }
 
   return (
@@ -87,14 +100,25 @@ export default function Header({ categories, currentBookSlug }: HeaderProps) {
             </div>
           </div>
 
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            id="theme-toggle"
-          >
-            {theme === "dark" ? "☀️" : "🌙"}
-          </button>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <button
+              className="theme-toggle"
+              onClick={toggleFontSize}
+              aria-label="Toggle text size"
+              title="Change Text Size"
+              style={{ fontSize: "1rem", fontWeight: "bold" }}
+            >
+              A<span style={{ fontSize: "0.75rem" }}>A</span>
+            </button>
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              id="theme-toggle"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+          </div>
         </nav>
       </div>
     </header>

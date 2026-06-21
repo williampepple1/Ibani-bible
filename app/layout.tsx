@@ -58,12 +58,25 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              try {
-                var theme = localStorage.getItem("ibani-bible-theme");
-                if (theme) {
-                  document.documentElement.setAttribute("data-theme", theme);
-                }
-              } catch (e) {}
+              (function() {
+                try {
+                  // Theme
+                  var savedTheme = localStorage.getItem('theme');
+                  var theme = savedTheme || 'light';
+                  document.documentElement.setAttribute('data-theme', theme);
+                  
+                  // Text Size
+                  var storageStr = localStorage.getItem('ibani-bible-storage');
+                  var textSize = 'normal';
+                  if (storageStr) {
+                    var parsed = JSON.parse(storageStr);
+                    if (parsed && parsed.state && parsed.state.fontSize) {
+                      textSize = parsed.state.fontSize;
+                    }
+                  }
+                  document.documentElement.setAttribute('data-text-size', textSize);
+                } catch (e) {}
+              })();
             `,
           }}
         />
