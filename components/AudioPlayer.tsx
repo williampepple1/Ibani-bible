@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { getBookBySlug, getAllBooks } from "@/lib/bible-data";
 
 interface AudioPlayerProps {
   bookSlug: string;
@@ -9,48 +10,27 @@ interface AudioPlayerProps {
 
 export default function AudioPlayer({ bookSlug, chapterNum }: AudioPlayerProps) {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    async function fetchAudioUrl() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`/api/audio/${bookSlug}/${chapterNum}`);
-        if (!res.ok) throw new Error("Audio not available");
-        const data = await res.json();
-        if (data.url) {
-          setAudioUrl(data.url);
-        } else {
-          throw new Error("No URL returned");
-        }
-      } catch (err) {
-        console.error("Failed to load audio:", err);
-        setError("Audio not available for this chapter.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    // Generate the filename on the client
+    const book = getBookBySlug(bookSlug);
+    if (!book) return;
+
+    const allBooks = getAllBooks();
+    const bookIndex = allBooks.findIndex((b) => b.code === book.code);
     
-    fetchAudioUrl();
+    if (bookIndex !== -1) {
+      const bNum = String(bookIndex + 1).padStart(2, "0");
+      const chNum = String(chapterNum).padStart(3, "0");
+      const fileName = `IBYLSTN2DA_B${bNum}_${book.code}_${chNum}.mp3`;
+      
+      const baseUrl = process.env.NEXT_PUBLIC_AUDIO_BASE_URL || "https://ibani.online";
+      setAudioUrl(`${baseUrl}/${fileName}`);
+    }
   }, [bookSlug, chapterNum]);
 
-  if (isLoading) {
-    return (
-      <div style={{ margin: "0 auto 24px auto", maxWidth: "600px", padding: "16px", textAlign: "center", color: "var(--text-muted)", fontSize: "0.9rem" }}>
-        Loading audio...
-      </div>
-    );
-  }
-
-  if (error || !audioUrl) {
-    // Silently fail if audio is not found so it doesn't clutter the UI
-    // Alternatively, uncomment to show error:
-    // return <div style={{ color: "red", textAlign: "center", marginBottom: "24px" }}>{error}</div>;
-    return null; 
-  }
+  if (!audioUrl) return null;
 
   return (
     <div className="audio-player" style={{ 
