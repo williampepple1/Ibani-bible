@@ -55,6 +55,9 @@ export default function AudioPlayer({ bookSlug, chapterNum }: AudioPlayerProps) 
       >
         Your browser does not support the audio element.
       </audio>
+      <div style={{ marginTop: "12px", textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+        Audio provided under copyright. <a href="/copyright.pdf" target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-primary)", textDecoration: "underline" }}>View Copyright Notice</a>
+      </div>
     </div>
   );
 }
