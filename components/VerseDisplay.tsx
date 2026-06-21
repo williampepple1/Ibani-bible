@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Verse, ReadingMode } from "@/lib/types";
 
 interface VerseDisplayProps {
@@ -10,14 +10,14 @@ interface VerseDisplayProps {
 }
 
 export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplayProps) {
-  const [mode, setMode] = useState<ReadingMode>(() => {
-    if (typeof window === "undefined") return "side-by-side";
+  const [mode, setMode] = useState<ReadingMode>("side-by-side");
+
+  useEffect(() => {
     const saved = localStorage.getItem("ibani-bible-reading-mode") as ReadingMode | null;
     if (saved && ["ibani", "english", "side-by-side"].includes(saved)) {
-      return saved;
+      setMode(saved);
     }
-    return "side-by-side";
-  });
+  }, []);
 
   const changeMode = useCallback((newMode: ReadingMode) => {
     setMode(newMode);
