@@ -1,0 +1,79 @@
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import Link from "next/link";
+import { getAllChapterParams, getChapter } from "@/lib/bible-data";
+import VerseDisplay from "@/components/VerseDisplay";
+import ChapterNav from "@/components/ChapterNav";
+
+interface ChapterPageProps {
+  params: Promise<{ book: string; chapter: string }>;
+}
+
+export async function generateStaticParams() {
+  return getAllChapterParams();
+}
+
+export async function generateMetadata({ params }: ChapterPageProps): Promise<Metadata> {
+  const { book: bookSlug, chapter: chapterStr } = await params;
+  const chapterNum = parseInt(chapterStr, 10);
+  const data = getChapter(bookSlug, chapterNum);
+  if (!data) return {};
+
+  const firstVerse = data.verses[0]?.ibaniText.slice(0, 120) || "";
+
+  return {
+    title: `${data.book.name} ${data.chapter}`,
+    description: `${data.book.name} Chapter ${data.chapter} in the Ibani language — ${data.verses.length} verses. ${firstVerse}...`,
+    alternates: {
+      canonical: `https://bible.ibani.online/${data.book.slug}/${data.chapter}`,
+    },
+    openGraph: {
+      title: `${data.book.name} ${data.chapter} — Ibani Bible`,
+      description: `Read ${data.book.name} Chapter ${data.chapter} in Ibani with English translation.`,
+      url: `https://bible.ibani.online/${data.book.slug}/${data.chapter}`,
+    },
+  };
+}
+
+export default async function ChapterPage({ params }: ChapterPageProps) {
+  const { book: bookSlug, chapter: chapterStr } = await params;
+  const chapterNum = parseInt(chapterStr, 10);
+  const data = getChapter(bookSlug, chapterNum);
+
+  if (!data) {
+    notFound();
+  }
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="page-header__inner">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
+            <Link href="/" className="breadcrumb__link">
+              Home
+            </Link>
+            <span className="breadcrumb__sep">›</span>
+            <Link href={`/${data.book.slug}`} className="breadcrumb__link">
+              {data.book.name}
+            </Link>
+            <span className="breadcrumb__sep">›</span>
+            <span className="breadcrumb__current">Chapter {data.chapter}</span>
+          </nav>
+        </div>
+      </div>
+
+      <section className="section">
+        <VerseDisplay
+          verses={data.verses}
+          bookName={data.book.name}
+          chapter={data.chapter}
+        />
+
+        <ChapterNav
+          prevChapter={data.prevChapter}
+          nextChapter={data.nextChapter}
+        />
+      </section>
+    </>
+  );
+}
