@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef } from "react";
-import { getBookBySlug, getAllBooks } from "@/lib/bible-data";
+import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getBookBySlug, getAllBooks, getChapter } from "@/lib/bible-data";
 
 interface AudioPlayerProps {
   bookSlug: string;
@@ -10,6 +11,27 @@ interface AudioPlayerProps {
 
 export default function AudioPlayer({ bookSlug, chapterNum }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const router = useRouter();
+  const [speed, setSpeed] = useState<number>(1);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  }, [speed]);
+
+  const handleEnded = () => {
+    const data = getChapter(bookSlug, chapterNum);
+    if (data?.nextChapter) {
+      router.push(`/${data.nextChapter.bookSlug}/${data.nextChapter.chapter}`);
+    }
+  };
+
+  const toggleSpeed = () => {
+    const speeds = [1, 1.25, 1.5, 2];
+    const nextIdx = (speeds.indexOf(speed) + 1) % speeds.length;
+    setSpeed(speeds[nextIdx]);
+  };
 
   // Generate the filename synchronously during render (React best practice)
   const book = getBookBySlug(bookSlug);
@@ -43,14 +65,23 @@ export default function AudioPlayer({ bookSlug, chapterNum }: AudioPlayerProps) 
         <h3 style={{ fontSize: "0.95rem", color: "var(--text-primary)", fontWeight: 600, margin: 0 }}>
           Listen to Chapter {chapterNum}
         </h3>
-        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", background: "var(--bg-primary)", padding: "2px 8px", borderRadius: "12px" }}>
-          Ibani Audio
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button 
+            onClick={toggleSpeed}
+            style={{ fontSize: "0.8rem", color: "var(--accent-gold)", background: "var(--accent-gold-dim)", padding: "2px 8px", borderRadius: "12px", border: "1px solid var(--border-accent)", cursor: "pointer", fontWeight: 600 }}
+          >
+            {speed}x
+          </button>
+          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", background: "var(--bg-primary)", padding: "2px 8px", borderRadius: "12px" }}>
+            Ibani Audio
+          </span>
+        </div>
       </div>
       <audio 
         ref={audioRef} 
         controls 
         src={audioUrl} 
+        onEnded={handleEnded}
         style={{ width: "100%", height: "40px", borderRadius: "8px" }}
       >
         Your browser does not support the audio element.
