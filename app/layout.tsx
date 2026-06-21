@@ -61,7 +61,7 @@ export default function RootLayout({
               (function() {
                 try {
                   // Theme
-                  var savedTheme = localStorage.getItem('theme');
+                  var savedTheme = localStorage.getItem('ibani-bible-theme');
                   var theme = savedTheme || 'light';
                   document.documentElement.setAttribute('data-theme', theme);
                   
