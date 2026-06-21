@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
 import { getBookBySlug, getAllBooks } from "@/lib/bible-data";
 
 interface AudioPlayerProps {
@@ -9,26 +9,23 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({ bookSlug, chapterNum }: AudioPlayerProps) {
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    // Generate the filename on the client
-    const book = getBookBySlug(bookSlug);
-    if (!book) return;
+  // Generate the filename synchronously during render (React best practice)
+  const book = getBookBySlug(bookSlug);
+  if (!book) return null;
 
-    const allBooks = getAllBooks();
-    const bookIndex = allBooks.findIndex((b) => b.code === book.code);
-    
-    if (bookIndex !== -1) {
-      const bNum = String(bookIndex + 1).padStart(2, "0");
-      const chNum = String(chapterNum).padStart(3, "0");
-      const fileName = `IBYLSTN2DA_B${bNum}_${book.code}_${chNum}.mp3`;
-      
-      const baseUrl = process.env.NEXT_PUBLIC_AUDIO_BASE_URL || "https://ibani.online";
-      setAudioUrl(`${baseUrl}/${fileName}`);
-    }
-  }, [bookSlug, chapterNum]);
+  const allBooks = getAllBooks();
+  const bookIndex = allBooks.findIndex((b) => b.code === book.code);
+  
+  if (bookIndex === -1) return null;
+
+  const bNum = String(bookIndex + 1).padStart(2, "0");
+  const chNum = String(chapterNum).padStart(3, "0");
+  const fileName = `IBYLSTN2DA_B${bNum}_${book.code}_${chNum}.mp3`;
+  
+  const baseUrl = process.env.NEXT_PUBLIC_AUDIO_BASE_URL || "https://ibani.online";
+  const audioUrl = `${baseUrl}/${fileName}`;
 
   if (!audioUrl) return null;
 
