@@ -10,13 +10,15 @@ interface HeaderProps {
 }
 
 export default function Header({ categories, currentBookSlug }: HeaderProps) {
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    if (typeof window === "undefined") return "dark";
+  const [theme, setTheme] = useState<"dark" | "light">("light");
+
+  useEffect(() => {
     const saved = localStorage.getItem("ibani-bible-theme") as "dark" | "light" | null;
-    if (saved) return saved;
-    if (window.matchMedia("(prefers-color-scheme: light)").matches) return "light";
-    return "dark";
-  });
+    if (saved) {
+      // eslint-disable-next-line
+      setTheme(saved);
+    }
+  }, []);
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

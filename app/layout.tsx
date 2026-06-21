@@ -53,8 +53,20 @@ export default function RootLayout({
   const categories = getCategories();
 
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme="light">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem("ibani-bible-theme");
+                if (theme) {
+                  document.documentElement.setAttribute("data-theme", theme);
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
