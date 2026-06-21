@@ -47,7 +47,7 @@ export default function BreadcrumbDropdown({ categories }: BreadcrumbDropdownPro
         </svg>
       </button>
 
-      <div className={`book-dropdown__menu ${menuOpen ? "open" : ""}`} role="menu" style={{ left: 0, right: "auto", top: "100%", marginTop: "8px" }}>
+      <div className={`book-dropdown__menu ${menuOpen ? "open" : ""}`} role="menu" style={{ left: 0, right: "auto", top: "100%", marginTop: "8px", maxWidth: "calc(100vw - 48px)" }}>
         {categories.map(({ category, books }) => (
           <div key={category}>
             <div className="book-dropdown__category">{category}</div>
