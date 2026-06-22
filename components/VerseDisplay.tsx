@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Verse, ReadingMode } from "@/lib/types";
+import ShareModal from "@/components/ShareModal";
 
 interface VerseDisplayProps {
   verses: Verse[];
@@ -25,6 +26,7 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
     }
     return "side-by-side";
   });
+
   // Initialise from hash so the verse is highlighted before the first paint
   const [selectedVerse, setSelectedVerse] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
@@ -34,26 +36,8 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
     return isNaN(n) ? null : n;
   });
 
-  const handleShare = async (v: Verse) => {
-    const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}?mode=${mode}#verse-${v.verse}`;
-    const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${bookName} ${chapter}:${v.verse}`,
-          text: text,
-          url: verseUrl,
-        });
-      } catch (err) {
-        console.log("Error sharing", err);
-      }
-    } else {
-      await navigator.clipboard.writeText(verseUrl);
-      alert(`Link copied!\n${verseUrl}`);
-    }
-    setSelectedVerse(null);
-  };
+  // Which verse is open in the share modal (null = closed)
+  const [sharingVerse, setSharingVerse] = useState<Verse | null>(null);
 
   // Scroll to the pre-selected verse after hydration
   useEffect(() => {
@@ -71,6 +55,11 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
   const changeMode = useCallback((newMode: ReadingMode) => {
     setMode(newMode);
     localStorage.setItem("ibani-bible-reading-mode", newMode);
+  }, []);
+
+  const openShare = useCallback((v: Verse, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSharingVerse(v);
   }, []);
 
   return (
@@ -121,12 +110,18 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
       {mode === "side-by-side" ? (
         <div className={`chapter-content chapter-content--wide`}>
           {verses.map((v) => (
-            <div 
-              key={v.verse} 
-              className={`verse-parallel ${selectedVerse === v.verse ? 'selected' : ''}`} 
+            <div
+              key={v.verse}
+              className={`verse-parallel ${selectedVerse === v.verse ? "selected" : ""}`}
               id={`verse-${v.verse}`}
               onClick={() => setSelectedVerse(selectedVerse === v.verse ? null : v.verse)}
-              style={{ cursor: "pointer", position: "relative", backgroundColor: selectedVerse === v.verse ? "var(--accent-gold-dim)" : "transparent", padding: selectedVerse === v.verse ? "16px" : "16px 0", borderRadius: selectedVerse === v.verse ? "8px" : "0" }}
+              style={{
+                cursor: "pointer",
+                position: "relative",
+                backgroundColor: selectedVerse === v.verse ? "var(--accent-gold-dim)" : "transparent",
+                padding: selectedVerse === v.verse ? "16px" : "16px 0",
+                borderRadius: selectedVerse === v.verse ? "8px" : "0",
+              }}
             >
               <div className="verse-parallel__col">
                 <div className="verse-parallel__label">Ibani</div>
@@ -140,8 +135,21 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
               </div>
               {selectedVerse === v.verse && (
                 <div style={{ position: "absolute", top: "8px", right: "8px" }}>
-                  <button onClick={(e) => { e.stopPropagation(); handleShare(v); }} style={{ background: "var(--accent-gold)", color: "#fff", border: "none", padding: "4px 12px", borderRadius: "16px", fontSize: "0.8rem", cursor: "pointer", fontWeight: 600, boxShadow: "var(--shadow-sm)" }}>
-                    Share / Copy
+                  <button
+                    onClick={(e) => openShare(v, e)}
+                    style={{
+                      background: "var(--accent-gold)",
+                      color: "#fff",
+                      border: "none",
+                      padding: "4px 12px",
+                      borderRadius: "16px",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      boxShadow: "var(--shadow-sm)",
+                    }}
+                  >
+                    Share
                   </button>
                 </div>
               )}
@@ -152,19 +160,37 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
         <article className="chapter-content">
           <div className="verses-block">
             {verses.map((v) => (
-              <span 
-                key={v.verse} 
-                className="verse" 
+              <span
+                key={v.verse}
+                className="verse"
                 id={`verse-${v.verse}`}
                 onClick={() => setSelectedVerse(selectedVerse === v.verse ? null : v.verse)}
-                style={{ cursor: "pointer", backgroundColor: selectedVerse === v.verse ? "var(--accent-gold-dim)" : "transparent", position: "relative" }}
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: selectedVerse === v.verse ? "var(--accent-gold-dim)" : "transparent",
+                  position: "relative",
+                }}
               >
                 <sup className="verse__number">{v.verse}</sup>
                 <span className="verse__text">
                   {mode === "ibani" ? v.ibaniText : v.englishText}
                 </span>
                 {selectedVerse === v.verse && (
-                  <button onClick={(e) => { e.stopPropagation(); handleShare(v); }} style={{ background: "var(--accent-gold)", color: "#fff", border: "none", padding: "2px 8px", borderRadius: "12px", fontSize: "0.7rem", cursor: "pointer", fontWeight: 600, marginLeft: "8px", verticalAlign: "middle" }}>
+                  <button
+                    onClick={(e) => openShare(v, e)}
+                    style={{
+                      background: "var(--accent-gold)",
+                      color: "#fff",
+                      border: "none",
+                      padding: "2px 8px",
+                      borderRadius: "12px",
+                      fontSize: "0.7rem",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      marginLeft: "8px",
+                      verticalAlign: "middle",
+                    }}
+                  >
                     Share
                   </button>
                 )}
@@ -172,6 +198,18 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
             ))}
           </div>
         </article>
+      )}
+
+      {/* Share Modal */}
+      {sharingVerse && (
+        <ShareModal
+          verse={sharingVerse}
+          bookName={bookName}
+          bookSlug={bookSlug}
+          chapter={chapter}
+          mode={mode}
+          onClose={() => setSharingVerse(null)}
+        />
       )}
     </div>
   );
