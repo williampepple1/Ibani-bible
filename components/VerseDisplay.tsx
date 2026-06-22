@@ -11,7 +11,20 @@ interface VerseDisplayProps {
 }
 
 export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: VerseDisplayProps) {
-  const [mode, setMode] = useState<ReadingMode>("side-by-side");
+  // Prefer ?mode= from the share URL, then fall back to localStorage
+  const [mode, setMode] = useState<ReadingMode>(() => {
+    if (typeof window === "undefined") return "side-by-side";
+    const params = new URLSearchParams(window.location.search);
+    const urlMode = params.get("mode");
+    if (urlMode && (["ibani", "english", "side-by-side"] as string[]).includes(urlMode)) {
+      return urlMode as ReadingMode;
+    }
+    const saved = localStorage.getItem("ibani-bible-reading-mode") as ReadingMode | null;
+    if (saved && (["ibani", "english", "side-by-side"] as string[]).includes(saved)) {
+      return saved;
+    }
+    return "side-by-side";
+  });
   // Initialise from hash so the verse is highlighted before the first paint
   const [selectedVerse, setSelectedVerse] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
@@ -22,7 +35,7 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
   });
 
   const handleShare = async (v: Verse) => {
-    const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}#verse-${v.verse}`;
+    const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}?mode=${mode}#verse-${v.verse}`;
     const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}\n\n${verseUrl}`;
 
     if (navigator.share) {
@@ -41,14 +54,6 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
     }
     setSelectedVerse(null);
   };
-
-  useEffect(() => {
-    const saved = localStorage.getItem("ibani-bible-reading-mode") as ReadingMode | null;
-    if (saved && ["ibani", "english", "side-by-side"].includes(saved)) {
-      // eslint-disable-next-line
-      setMode(saved);
-    }
-  }, []);
 
   // Scroll to the pre-selected verse after hydration
   useEffect(() => {
