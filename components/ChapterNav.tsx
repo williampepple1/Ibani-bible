@@ -14,7 +14,7 @@ export default function ChapterNav({ prevChapter, nextChapter }: ChapterNavProps
     <nav className="chapter-nav" aria-label="Chapter navigation" id="chapter-nav">
       {prevChapter && prevBook ? (
         <Link
-          href={`/${prevChapter.bookSlug}/${prevChapter.chapter}`}
+          href={`/${prevChapter.bookSlug}/${prevChapter.chapter}#verse-1`}
           className="chapter-nav__link"
           id="prev-chapter"
         >

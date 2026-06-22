@@ -71,6 +71,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
         <VerseDisplay
           verses={data.verses}
           bookName={data.book.name}
+          bookSlug={data.book.slug}
           chapter={data.chapter}
         />
 

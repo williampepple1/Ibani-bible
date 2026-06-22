@@ -6,28 +6,38 @@ import { Verse, ReadingMode } from "@/lib/types";
 interface VerseDisplayProps {
   verses: Verse[];
   bookName: string;
+  bookSlug: string;
   chapter: number;
 }
 
-export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplayProps) {
+export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: VerseDisplayProps) {
   const [mode, setMode] = useState<ReadingMode>("side-by-side");
-  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  // Initialise from hash so the verse is highlighted before the first paint
+  const [selectedVerse, setSelectedVerse] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const hash = window.location.hash;
+    if (!hash.startsWith("#verse-")) return null;
+    const n = parseInt(hash.replace("#verse-", ""), 10);
+    return isNaN(n) ? null : n;
+  });
 
   const handleShare = async (v: Verse) => {
-    const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}\n\nRead more at https://bible.ibani.online`;
-    
+    const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}#verse-${v.verse}`;
+    const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}\n\n${verseUrl}`;
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: `${bookName} ${chapter}:${v.verse}`,
           text: text,
+          url: verseUrl,
         });
       } catch (err) {
         console.log("Error sharing", err);
       }
     } else {
-      navigator.clipboard.writeText(text);
-      alert("Verse copied to clipboard!");
+      await navigator.clipboard.writeText(verseUrl);
+      alert(`Link copied!\n${verseUrl}`);
     }
     setSelectedVerse(null);
   };
@@ -39,6 +49,19 @@ export default function VerseDisplay({ verses, bookName, chapter }: VerseDisplay
       setMode(saved);
     }
   }, []);
+
+  // Scroll to the pre-selected verse after hydration
+  useEffect(() => {
+    if (selectedVerse === null) return;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`verse-${selectedVerse}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount only
 
   const changeMode = useCallback((newMode: ReadingMode) => {
     setMode(newMode);

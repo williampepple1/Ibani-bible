@@ -8,7 +8,7 @@ import SearchModal from "./SearchModal";
 
 interface HeaderProps {
   categories: { category: string; books: BookMeta[] }[];
-  currentBookSlug?: string;
+  currentBookSlug?: string; 
 }
 
 export default function Header({ categories, currentBookSlug }: HeaderProps) {
