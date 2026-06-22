@@ -90,6 +90,7 @@ function LazyImageCard({
           <img
             src={entry.url}
             alt={entry.filename}
+            crossOrigin="anonymous"
             onLoad={() => setLoaded(true)}
             style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.3s" }}
           />
@@ -410,7 +411,7 @@ export default function ShareModal({
                 <div className="canvas-preview">
                   <div className="canvas-preview__img-wrap">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={selected.url} alt="Preview" className="canvas-preview__bg" />
+                    <img src={selected.url} alt="Preview" className="canvas-preview__bg" crossOrigin="anonymous" />
                     <div className="canvas-preview__overlay">
                       <span className="canvas-preview__ref">{bookName} {chapter}:{verse.verse}</span>
                       <p className="canvas-preview__text">{verse.ibaniText}</p>
