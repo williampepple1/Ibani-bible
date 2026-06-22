@@ -296,6 +296,18 @@ a {
   transition: all var(--transition-base);
 }
 
+@media (max-width: 640px) {
+  .book-dropdown__menu {
+    position: fixed;
+    top: var(--header-height);
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: calc(100vh - var(--header-height) - 32px);
+    margin-top: 8px;
+  }
+}
+
 .book-dropdown__menu.open {
   opacity: 1;
   visibility: visible;
