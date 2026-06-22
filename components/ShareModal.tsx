@@ -353,72 +353,83 @@ export default function ShareModal({
         {/* ── Tab: Image ── */}
         {tab === "image" && (
           <div className="share-modal__body share-modal__body--image" role="tabpanel" aria-labelledby="tab-image">
-            {/* Recently used */}
-            {recent.length > 0 && (
-              <div className="img-picker__section">
-                <p className="img-picker__label">Recently used</p>
-                <div className="img-picker__row">
-                  {recent.map((r) => (
-                    <LazyImageCard
-                      key={r.url}
-                      entry={r}
-                      selected={selected?.url === r.url}
-                      onClick={() => handleSelectImage(r)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* All images */}
-            <div className="img-picker__section">
-              {recent.length > 0 && <p className="img-picker__label">All images</p>}
-              {fetchError ? (
-                <p className="img-picker__error">Could not load images. Please check your connection.</p>
-              ) : images.length === 0 ? (
-                <div className="img-picker__grid">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="img-picker__skeleton" style={{ borderRadius: 8, aspectRatio: "1" }} />
-                  ))}
-                </div>
-              ) : (
-                <div className="img-picker__grid">
-                  {images.map((entry) => (
-                    <LazyImageCard
-                      key={entry.url}
-                      entry={entry}
-                      selected={selected?.url === entry.url}
-                      onClick={() => handleSelectImage(entry)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Preview + action */}
-            {selected && (
-              <div className="canvas-preview">
-                <div className="canvas-preview__img-wrap">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={selected.url} alt="Preview" className="canvas-preview__bg" />
-                  <div className="canvas-preview__overlay">
-                    <span className="canvas-preview__ref">{bookName} {chapter}:{verse.verse}</span>
-                    <p className="canvas-preview__text">{verse.ibaniText}</p>
-                    {mode === "side-by-side" && (
-                      <p className="canvas-preview__text canvas-preview__text--en">{verse.englishText}</p>
-                    )}
-                    <span className="canvas-preview__brand">bible.ibani.online</span>
+            {!selected ? (
+              <>
+                {/* Recently used */}
+                {recent.length > 0 && (
+                  <div className="img-picker__section">
+                    <p className="img-picker__label">Recently used</p>
+                    <div className="img-picker__row">
+                      {recent.map((r) => (
+                        <LazyImageCard
+                          key={r.url}
+                          entry={r}
+                          selected={false}
+                          onClick={() => handleSelectImage(r)}
+                        />
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {/* All images */}
+                <div className="img-picker__section">
+                  {recent.length > 0 && <p className="img-picker__label">All images</p>}
+                  {fetchError ? (
+                    <p className="img-picker__error">Could not load images. Please check your connection.</p>
+                  ) : images.length === 0 ? (
+                    <div className="img-picker__grid">
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="img-picker__skeleton" style={{ borderRadius: 8, aspectRatio: "1" }} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="img-picker__grid">
+                      {images.map((entry) => (
+                        <LazyImageCard
+                          key={entry.url}
+                          entry={entry}
+                          selected={false}
+                          onClick={() => handleSelectImage(entry)}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
+              </>
+            ) : (
+              <>
+                {/* Preview + action */}
                 <button
-                  className="share-btn share-btn--primary share-btn--full"
-                  onClick={handleShareImage}
-                  disabled={composing}
-                  id="share-image-btn"
+                  className="share-btn share-btn--secondary"
+                  onClick={() => setSelected(null)}
+                  style={{ alignSelf: "flex-start", padding: "6px 12px", fontSize: "0.8rem", marginBottom: "8px" }}
                 >
-                  {composing ? "Preparing…" : "🖼️ Share / Download Image"}
+                  ← Back to images
                 </button>
-              </div>
+                <div className="canvas-preview">
+                  <div className="canvas-preview__img-wrap">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={selected.url} alt="Preview" className="canvas-preview__bg" />
+                    <div className="canvas-preview__overlay">
+                      <span className="canvas-preview__ref">{bookName} {chapter}:{verse.verse}</span>
+                      <p className="canvas-preview__text">{verse.ibaniText}</p>
+                      {mode === "side-by-side" && (
+                        <p className="canvas-preview__text canvas-preview__text--en">{verse.englishText}</p>
+                      )}
+                      <span className="canvas-preview__brand">bible.ibani.online</span>
+                    </div>
+                  </div>
+                  <button
+                    className="share-btn share-btn--primary share-btn--full"
+                    onClick={handleShareImage}
+                    disabled={composing}
+                    id="share-image-btn"
+                  >
+                    {composing ? "Preparing…" : "🖼️ Share / Download Image"}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         )}
