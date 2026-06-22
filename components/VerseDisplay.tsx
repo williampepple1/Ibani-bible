@@ -36,7 +36,7 @@ export default function VerseDisplay({ verses, bookName, bookSlug, chapter }: Ve
 
   const handleShare = async (v: Verse) => {
     const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}?mode=${mode}#verse-${v.verse}`;
-    const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}\n\n${verseUrl}`;
+    const text = `${bookName} ${chapter}:${v.verse}\n\nIbani: ${v.ibaniText}\nEnglish: ${v.englishText}`;
 
     if (navigator.share) {
       try {
