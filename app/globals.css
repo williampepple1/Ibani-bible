@@ -1364,6 +1364,7 @@ a {
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1372,6 +1373,7 @@ a {
   font-size: 0.8rem;
   color: rgba(200, 208, 220, 0.9);
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .canvas-preview__brand {
