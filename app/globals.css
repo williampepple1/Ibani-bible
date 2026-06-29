@@ -296,6 +296,11 @@ a {
   transition: all var(--transition-base);
 }
 
+.book-dropdown__menu--left {
+  left: 0;
+  right: auto;
+}
+
 @media (max-width: 640px) {
   .book-dropdown__menu {
     position: fixed;
