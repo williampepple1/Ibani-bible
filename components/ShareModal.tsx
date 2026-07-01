@@ -213,6 +213,7 @@ export default function ShareModal({
   onClose,
 }: ShareModalProps) {
   const [tab, setTab] = useState<"link" | "image">("link");
+  const [shareMode, setShareMode] = useState<ReadingMode>(mode);
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [recent, setRecent] = useState<ImageEntry[]>([]);
   const [selected, setSelected] = useState<ImageEntry | null>(null);
@@ -222,6 +223,19 @@ export default function ShareModal({
 
   const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}?mode=${mode}#verse-${verse.verse}`;
   const shareText = `${bookName} ${chapter}:${verse.verse}\n\nIbani: ${verse.ibaniText}\nEnglish: ${verse.englishText}`;
+
+  // Load saved share mode
+  useEffect(() => {
+    const saved = localStorage.getItem("ibani-bible-share-mode") as ReadingMode | null;
+    if (saved && ["ibani", "english", "side-by-side"].includes(saved)) {
+      setShareMode(saved);
+    }
+  }, []);
+
+  const handleShareModeChange = (newMode: ReadingMode) => {
+    setShareMode(newMode);
+    localStorage.setItem("ibani-bible-share-mode", newMode);
+  };
 
   // Load image manifest once
   useEffect(() => {
@@ -266,7 +280,7 @@ export default function ShareModal({
     try {
       saveRecent(selected);
       setRecent(getRecent());
-      const blob = await composeImage(selected.url, verse, bookName, chapter, mode);
+      const blob = await composeImage(selected.url, verse, bookName, chapter, shareMode);
       if (!blob) return;
       const file = new File([blob], `ibani-bible-${bookSlug}-${chapter}-${verse.verse}.jpg`, { type: "image/jpeg" });
       if (navigator.canShare?.({ files: [file] })) {
@@ -408,15 +422,41 @@ export default function ShareModal({
                 >
                   ← Back to images
                 </button>
+                <div className="share-mode-toggle" style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
+                  {(['ibani', 'english', 'side-by-side'] as ReadingMode[]).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => handleShareModeChange(m)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        border: shareMode === m ? '1px solid #d4a853' : '1px solid #444',
+                        background: shareMode === m ? 'rgba(212,168,83,0.15)' : 'transparent',
+                        color: shareMode === m ? '#d4a853' : '#a0a0a0',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {m === 'ibani' ? 'Ibani Only' : m === 'english' ? 'English Only' : 'Side-by-side'}
+                    </button>
+                  ))}
+                </div>
                 <div className="canvas-preview">
                   <div className="canvas-preview__img-wrap">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={selected.url} alt="Preview" className="canvas-preview__bg" crossOrigin="anonymous" />
                     <div className="canvas-preview__overlay">
                       <span className="canvas-preview__ref">{bookName} {chapter}:{verse.verse}</span>
-                      <p className="canvas-preview__text">{verse.ibaniText}</p>
-                      {mode === "side-by-side" && (
-                        <p className="canvas-preview__text canvas-preview__text--en">{verse.englishText}</p>
+                      {shareMode !== "english" ? (
+                        <>
+                          <p className="canvas-preview__text">{verse.ibaniText}</p>
+                          {shareMode === "side-by-side" && (
+                            <p className="canvas-preview__text canvas-preview__text--en">{verse.englishText}</p>
+                          )}
+                        </>
+                      ) : (
+                        <p className="canvas-preview__text">{verse.englishText}</p>
                       )}
                       <span className="canvas-preview__brand">bible.ibani.online</span>
                     </div>
