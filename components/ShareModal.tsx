@@ -213,7 +213,15 @@ export default function ShareModal({
   onClose,
 }: ShareModalProps) {
   const [tab, setTab] = useState<"link" | "image">("link");
-  const [shareMode, setShareMode] = useState<ReadingMode>(mode);
+  const [shareMode, setShareMode] = useState<ReadingMode>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ibani-bible-share-mode") as ReadingMode | null;
+      if (saved && ["ibani", "english", "side-by-side"].includes(saved)) {
+        return saved;
+      }
+    }
+    return mode;
+  });
   const [images, setImages] = useState<ImageEntry[]>([]);
   const [recent, setRecent] = useState<ImageEntry[]>([]);
   const [selected, setSelected] = useState<ImageEntry | null>(null);
@@ -223,14 +231,6 @@ export default function ShareModal({
 
   const verseUrl = `https://bible.ibani.online/${bookSlug}/${chapter}?mode=${mode}#verse-${verse.verse}`;
   const shareText = `${bookName} ${chapter}:${verse.verse}\n\nIbani: ${verse.ibaniText}\nEnglish: ${verse.englishText}`;
-
-  // Load saved share mode
-  useEffect(() => {
-    const saved = localStorage.getItem("ibani-bible-share-mode") as ReadingMode | null;
-    if (saved && ["ibani", "english", "side-by-side"].includes(saved)) {
-      setShareMode(saved);
-    }
-  }, []);
 
   const handleShareModeChange = (newMode: ReadingMode) => {
     setShareMode(newMode);
